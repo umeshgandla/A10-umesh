@@ -1,8 +1,8 @@
 pipeline {
-    agent { label 'node_slave' }
+    agent { label 'slave-agent' }
 
     environment {
-        ECR_REPO = '866934333672.dkr.ecr.us-west-2.amazonaws.com/dharan/python-app'          // Replace with your actual ECR URL
+        ECR_REPO = '866934333672.dkr.ecr.ap-northeast-1.amazonaws.com/ume-repo'          // Replace with your actual ECR URL
         IMAGE_NAME = 'flask-app'
         TAG = "${env.BRANCH_NAME}-${env.BUILD_ID}"
         PORT = "${env.BRANCH_NAME == 'dev' ? '5001' : env.BRANCH_NAME == 'staging' ? '5002' : '5003'}"
@@ -12,7 +12,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: "${env.BRANCH_NAME}", url: 'https://github.com/DharaneeswarReddy-Ramireddy/dharan_a10.git' // Replace with your GitHub repository URL
+                git branch: "${env.BRANCH_NAME}", url: 'https://github.com/umeshgandla/A10-umesh.git' // Replace with your GitHub repository URL
             }
         }
 
@@ -37,7 +37,7 @@ pipeline {
         stage('Push to ECR') {
             steps {
                 // Log in to ECR using the instance profile attached to the EC2 instance
-                sh "aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin ${env.ECR_REPO}"
+                sh "aws ecr get-login-password --region ap-northeast-1 | docker login --username AWS --password-stdin ${env.ECR_REPO}"
                 
                 // Push the Docker image to ECR with the branch-specific tag
                 sh "docker push ${env.ECR_REPO}:${env.TAG}"
@@ -46,7 +46,7 @@ pipeline {
                 success {
                 // Send a basic email notification after successful image push to ECR
                     mail(
-                        to: 'Dharaneeswar.ramireddy@gmail.com', // Replace with the recipient's email
+                        to: 'umeshg0019@gmail.com', // Replace with the recipient's email
                         subject: "Jenkins Job - Docker Image Pushed to ECR Successfully",
                         body: "Hello,\n\nThe Docker image '${env.IMAGE_NAME}:${env.TAG}' has been successfully pushed to ECR.\n\nBest regards,\nJenkins"
                     )
