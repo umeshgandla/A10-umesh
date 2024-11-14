@@ -46,7 +46,7 @@ pipeline {
                 success {
                 // Send a basic email notification after successful image push to ECR
                     mail(
-                        to: 'umeshg0019@gmail.com', // Replace with the recipient's email
+                        to: 'm.ehtasham.azhar@gmail.com', // Replace with the recipient's email
                         subject: "Jenkins Job - Docker Image Pushed to ECR Successfully",
                         body: "Hello,\n\nThe Docker image '${env.IMAGE_NAME}:${env.TAG}' has been successfully pushed to ECR.\n\nBest regards,\nJenkins"
                     )
