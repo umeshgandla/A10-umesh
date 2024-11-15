@@ -7,6 +7,7 @@ pipeline {
         TAG = "${env.BRANCH_NAME}-${env.BUILD_ID}"
         PORT = "${env.BRANCH_NAME == 'dev' ? '5001' : env.BRANCH_NAME == 'staging' ? '5002' : '5003'}"
         CONTAINER_NAME = "${IMAGE_NAME}-${env.BRANCH_NAME}"
+        TRIVY_REPORT = 'trivy-report.txt' // Defining the Trivy report file name
     }
 
     stages {
@@ -25,25 +26,25 @@ pipeline {
             }
         }
 
-        stage('Trivy container Security Scan') {
+        stage('Trivy Security Scan') {
             steps {
                 script {
-            // Run Trivy scan on the branch-specific image
-            sh "trivy image ${ECR_REPO}:${TAG}"
+                    // Run Trivy scan on the branch-specific image and save the report
+                    sh "trivy image --format template --template '@trivy/templates/default.tpl' -o ${TRIVY_REPORT} ${ECR_REPO}:${TAG}"
                 }
-                 }
+            }
             post {
-                success {
-                    // Send a basic email notification after successful Trivy scan
+                always {
+                    // Send an email with the Trivy report attached
                     mail(
                         to: 'umesh0019@gmail.com', // Replace with the recipient's email
-                        subject: "Trivy Image Pushed to ECR Successfully",
-                        body: "Hello,\n\nTrivy scan result in attachment '${env.IMAGE_NAME}:${env.TAG}' has been successfully pushed to ECR.\n\nBest regards,\nJenkins",
+                        subject: "Trivy Scan Report - ${env.BRANCH_NAME}",
+                        body: "Hello,\n\nAttached is the Trivy scan report for the Docker image '${env.IMAGE_NAME}:${env.TAG}'.\n\nBest regards,\nJenkins",
+                        attachmentsPattern: "${TRIVY_REPORT}"
                     )
                 }
             }
         }
-
 
         stage('Push to ECR') {
             steps {
@@ -52,16 +53,6 @@ pipeline {
                 
                 // Push the Docker image to ECR with the branch-specific tag
                 sh "docker push ${env.ECR_REPO}:${env.TAG}"
-            }
-            post {
-                success {
-                // Send a basic email notification after successful image push to ECR
-                    mail(
-                        to: 'm.ehtasham.azhar@gmail.com', // Replace with the recipient's email
-                        subject: "Jenkins Job - Docker Image Pushed to ECR Successfully",
-                        body: "Hello,\n\nThe Docker image '${env.IMAGE_NAME}:${env.TAG}' has been successfully pushed to ECR.\n\nBest regards,\nJenkins"
-                    )
-                }
             }
         }
 
@@ -112,8 +103,4 @@ pipeline {
     }
 
     post {
-        always {
-            cleanWs()  // Clean up workspace after the build
-        }
-    }
-}
+        a
