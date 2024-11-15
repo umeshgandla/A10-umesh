@@ -26,7 +26,7 @@ pipeline {
             }
         }
 
-        stage('Trivy Security Scan') {
+       stage('Trivy Security Scan') {
             steps {
                 script {
                     // Run Trivy scan on the branch-specific image and save the report
