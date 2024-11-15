@@ -25,13 +25,23 @@ pipeline {
             }
         }
 
-        stage('Trivy Security Scan') {
+        stage('Trivy container Security Scan') {
             steps {
                 script {
                     // Run Trivy scan on the branch-specific image
                     sh "trivy image ${ECR_REPO}:${TAG}"
                 }
             }
+            post {
+                success {
+                // Send a basic email notification after successful image push to ECR
+                    mail(
+                        to: 'umesh0019@gmail.com', // Replace with the recipient's email
+                        subject: "Trivy Image Pushed to ECR Successfully",
+                        body: "Hello,\n\n Trivy scan result in attachment '${env.IMAGE_NAME}:${env.TAG}' has been successfully pushed to ECR.\n\nBest regards,\nJenkins"
+                        attachmentsPattern: 'trivyscan.txt'
+                    )
+                }
         }
 
         stage('Push to ECR') {
