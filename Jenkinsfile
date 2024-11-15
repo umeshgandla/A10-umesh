@@ -39,7 +39,6 @@ pipeline {
                         to: 'umesh0019@gmail.com', // Replace with the recipient's email
                         subject: "Trivy Image Pushed to ECR Successfully",
                         body: "Hello,\n\nTrivy scan result in attachment '${env.IMAGE_NAME}:${env.TAG}' has been successfully pushed to ECR.\n\nBest regards,\nJenkins",
-                        attachmentsPattern: 'trivyscan.txt'
                     )
                 }
             }
