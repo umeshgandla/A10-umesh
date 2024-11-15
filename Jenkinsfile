@@ -31,18 +31,7 @@ pipeline {
                     // Run Trivy scan on the branch-specific image
                     sh "trivy image ${ECR_REPO}:${TAG}"
                 }
-            }
-            post {
-                always {
-                    // Send an email with the Trivy report attached
-                    mail(
-                        to: 'umesh0019@gmail.com', // Replace with the recipient's email
-                        subject: "Trivy Scan Report - ${env.BRANCH_NAME}",
-                        body: "Hello,\n\nAttached is the Trivy scan report for the Docker image '${env.IMAGE_NAME}:${env.TAG}'.\n\nBest regards,\nJenkins",
-                        attachmentsPattern: "${TRIVY_REPORT}"
-                    )
-                }
-            }         
+            }   
         }
 
         stage('Push to ECR') {
